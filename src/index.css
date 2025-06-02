@@ -1,0 +1,56 @@
+@import "tailwindcss";
+
+@theme {
+  --color-default: #1e40af;
+  --color-light-primary: #3b82f6;
+  --color-dark-primary: #161616;
+  --color-dark-secondary: #1e1e1e;
+  --color-dark-tertiary: #9d9c9b;
+  --color-button-primary: #02a6a6;
+  --color-text-primary: #9d9c9b;
+}
+
+.signup-input {
+  @apply w-full p-2 bg-black text-white rounded-md;
+}
+
+.signup-input:focus {
+  outline: unset;
+  @apply outline-button-primary outline-1;
+}
+
+body {
+  @apply bg-dark-primary text-text-primary;
+}
+
+button {
+  @apply bg-button-primary;
+}
+
+.primary-btn {
+  @apply bg-button-primary px-2 py-4 w-1/2 mx-auto rounded-4xl text-white cursor-pointer;
+}
+
+.primary-input {
+  @apply w-full p-4 bg-black text-white rounded-md;
+}
+
+.primary-input-small {
+  @apply w-full p-2 bg-black text-white rounded-md;
+}
+
+.primary-input:focus,
+.primary-input-small:focus {
+  outline: unset;
+  @apply outline-button-primary outline-1;
+}
+
+.cover-section {
+  background-image: url("/public/images/cover-image.jpg");
+  background-size: cover;
+}
+
+input:-webkit-autofill {
+  transition: background-color 100000s ease-in-out 0s,
+    color 100000s ease-in-out 0s;
+}
