@@ -5,6 +5,8 @@ const path = "/file";
 export const getFilesApiCall = async () => {
   try {
     const response = await api.get(`${path}`);
+    console.log(response);
+
     return response.data;
   } catch (error) {
     return error.response.data;
