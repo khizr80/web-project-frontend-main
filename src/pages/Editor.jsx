@@ -6,7 +6,7 @@ import CodeOutput from "../components/editor/Code/CodeOutput";
 import { useSelector } from "react-redux";
 import { useEditor } from "../components/editor/hooks/useEditor";
 import { extensionToLanguage } from "../utils/utils";
-import { VscFolder, VscFolderOpened } from "react-icons/vsc";
+import { VscFiles, VscFolder, VscFolderOpened } from "react-icons/vsc";
 import { HiChartBar, HiOutlineChartBar } from "react-icons/hi";
 
 const Editor = () => {
@@ -16,6 +16,7 @@ const Editor = () => {
     getCurrentFileContent,
     fileContentLoading,
     setCurrentFileId,
+    handleEditorChange,
     handleSave,
     createNewFile,
     createFileLoading,
@@ -23,13 +24,13 @@ const Editor = () => {
     handleFileDelete,
   } = useEditor();
 
-  const files = useSelector((state) => state.files);
-  const [currentFile, setCurrentFile] = useState(null);
+  // states to manage sidebars in mobile view
   const [showLeftBar, setShowLeftBar] = useState(true);
   const [showRightBar, setShowRightBar] = useState(false);
 
+  const files = useSelector((state) => state.files);
+  const [currentFile, setCurrentFile] = useState(null);
   const editorRef = useRef(null); // store editor instance
-  const [editorContent, setEditorContent] = useState(""); // live editor content
 
   useEffect(() => {
     getFiles();
@@ -37,7 +38,7 @@ const Editor = () => {
 
   useEffect(() => {
     if (files) {
-      setCurrentFile(files.find((f) => f.id == currentFileId));
+      setCurrentFile(files && files.find((f) => f.id == currentFileId));
     }
   }, [files, currentFileId]);
 
@@ -47,7 +48,14 @@ const Editor = () => {
     }
   }, [currentFileId]);
 
-  // Handle editor mounting and bind Ctrl+S
+  // // runs when the editor is mounted
+  // const handleEditorMount = (editor) => {
+  //   // Bind 'Ctrl + S' to custom save function
+  //   editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS, () => {
+  //     handleSave(); // Trigger your custom save logic
+  //   });
+  // };
+
   const handleEditorMount = (editor, monaco) => {
     editorRef.current = editor;
 
@@ -57,11 +65,6 @@ const Editor = () => {
         handleSave(value);
       }
     });
-  };
-
-  // Handle code changes and keep state updated
-  const handleEditorChange = (value) => {
-    setEditorContent(value); // update live value
   };
 
   return (
@@ -79,12 +82,13 @@ const Editor = () => {
           handleFileDelete={handleFileDelete}
         />
       </div>
-
       <div className="col-span-5 md:col-span-3 bg-dark-secondary py-5">
         {files && !fileContentLoading && currentFile ? (
           <MonacoEditor
             defaultLanguage={extensionToLanguage[currentFile.extension]}
             defaultValue={currentFile.content}
+            language={extensionToLanguage[currentFile.extension]}
+            value={currentFile.content}
             theme="vs-dark"
             onChange={handleEditorChange}
             onMount={handleEditorMount}
@@ -95,24 +99,23 @@ const Editor = () => {
           </div>
         )}
       </div>
-
       <div
         className={`${
           showRightBar ? "translate-x-0" : "translate-x-full"
         } w-[100vw] transition-transform duration-300 fixed right-0 z-10 md:translate-x-0 md:static md:w-auto col-span-1 h-full bg-dark-primary overflow-y-auto`}
       >
-        <div className="flex items-center justify-between text-white px-4 py-2">
+        <div className="flex items-center justify-between  text-white px-4 py-2">
           <button
-            className={`px-4 py-1 mt-1 rounded-4xl transition-all duration-300
-              ${
-                currentFile?.saved
-                  ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-blue-600 hover:bg-blue-900"
-              }
-            `}
+            className={`bg-button-primary px-4 py-1 mt-1 hover:scale-105 transition-all duration-300 ease-in-out rounded-4xl text-white cursor-pointer
+            ${
+              currentFile?.saved
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-blue-600 hover:bg-blue-900"
+            }
+            text-white`}
             onClick={() => {
-              if (!saving && editorContent) {
-                handleSave(editorContent);
+              if (!saving) {
+                handleSave(currentFile.content);
               }
             }}
             disabled={currentFile && currentFile.saved}
@@ -124,13 +127,15 @@ const Editor = () => {
         <CodeOutput currentFile={currentFile} />
       </div>
 
-      {/* Mobile sidebar toggles */}
+      {/* To show toggle buttons for sidebars in mobile view */}
       <div className="fixed bottom-0 left-0 z-10 w-full flex items-center justify-between p-4 md:hidden">
         <button
-          className="p-2 rounded-lg hover:scale-105"
+          className="p-2 rounded-lg cursor-pointer hover:scale-105 transition-transform duration-300"
           onClick={() => {
             setShowLeftBar((prev) => {
-              if (!prev && showRightBar) setShowRightBar(false);
+              if (!prev && showRightBar) {
+                setShowRightBar(false);
+              }
               return !prev;
             });
           }}
@@ -142,12 +147,16 @@ const Editor = () => {
           )}
         </button>
         <button
-          className="p-2 rounded-lg hover:scale-105"
+          className="p-2 rounded-lg cursor-pointer hover:scale-105 transition-transform duration-300"
           onClick={() => {
-            setShowRightBar((prev) => {
-              if (!prev && showLeftBar) setShowLeftBar(false);
-              return !prev;
-            });
+            {
+              setShowRightBar((prev) => {
+                if (!prev && showLeftBar) {
+                  setShowLeftBar(false);
+                }
+                return !prev;
+              });
+            }
           }}
         >
           {showRightBar ? (
@@ -162,4 +171,5 @@ const Editor = () => {
 };
 
 export default Editor;
+
 
